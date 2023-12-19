@@ -8,7 +8,7 @@ namespace Functions
     public class RegisterReminderFunction
     {
         [FunctionName("Function1")]
-        public void Run([TimerTrigger("0 * * * *")]TimerInfo myTimer, ILogger log)
+        public void Run([TimerTrigger("* 0 * * * *")]TimerInfo myTimer, ILogger log)
         {
             log.LogInformation($"C# Timer trigger function executed 1 at: {DateTime.Now}");
         }
