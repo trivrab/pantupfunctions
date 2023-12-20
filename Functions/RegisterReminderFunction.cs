@@ -16,7 +16,7 @@ namespace Functions
     public class RegisterReminderFunction
     {
         [FunctionName("RegisterReminderFunction")]
-        public void Run([TimerTrigger("0 0 21 * * *"
+        public void Run([TimerTrigger("%Cron%"
             #if DEBUG
             , RunOnStartup=true
 #endif
