@@ -16,7 +16,7 @@ namespace Functions
     public class RegisterReminderFunction
     {
         [FunctionName("RegisterReminderFunction")]
-        public void Run([TimerTrigger("0 0 21 * * *"
+        public void Run([TimerTrigger("%Cron%"
             #if DEBUG
             , RunOnStartup=true
 #endif
@@ -62,7 +62,7 @@ namespace Functions
             {
                 try
                 {
-                    List<Registration> regs = db.GetCollection<Registration>("registrations").Find(x => x.AssociationLink == assoc.Link && x.State == 1
+                    List<Registration> regs = db.GetCollection<Registration>("registrations").Find(x => x.AssociationLink == assoc.Link && x.State == 0
                         && assoc.RegistrationReminder.GetValueOrDefault(false)).ToList();
 
                     if (regs == null || regs.Count == 0)
