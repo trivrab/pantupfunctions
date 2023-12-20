@@ -35,6 +35,7 @@ namespace Functions
             var FROMEMAIL = EnvironmentHelper.GetEnvironmentVariable("FromEmail");
             var FROMNAME = EnvironmentHelper.GetEnvironmentVariable("FromName");
             var REPORTTOEMAIL = EnvironmentHelper.GetEnvironmentVariable("ReportToEmail");
+            var ENVIRONMENT = EnvironmentHelper.GetEnvironmentVariable("Environment");
 
             /** Initialize stuff**/
             var sendgridsecret = AzureHelper.GetSecret(SENDGRIDKEY, AZUREENDPOINT, MIKEY).Value;
@@ -90,7 +91,7 @@ namespace Functions
             try
             {
                 SendGridMessage msg = MailHelper.CreateSingleEmail(new EmailAddress(FROMEMAIL), new EmailAddress(REPORTTOEMAIL),
-                    "Registreringspåminnelse - Rapport", "", $"<p>Skickat till: </p><ul>{string.Join("", sends)}</ul>");
+                    $"Registreringspåminnelse - Rapport ({ENVIRONMENT})", "", $"<p>Skickat till: </p><ul>{string.Join("", sends)}</ul>");
                 var resp = client.SendEmailAsync(msg).Result;
                 log.LogInformation($"Sent report mail to: andre@viebke87.se");
 
