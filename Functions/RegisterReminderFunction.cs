@@ -17,9 +17,9 @@ namespace Functions
     {
         [FunctionName("RegisterReminderFunction")]
         public void Run([TimerTrigger("%RegisterReminderCron%"
-//#if DEBUG
-//            , RunOnStartup=true
-//#endif
+#if DEBUG
+            , RunOnStartup=true
+#endif
             )]TimerInfo myTimer, ILogger log)
         {
 
