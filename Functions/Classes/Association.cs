@@ -51,12 +51,15 @@ namespace Pantupfunctions.Classes
         public string ForegroundColor { get; set; }
 
         [BsonElement("acceptMessage")]
-        public string AcceptMessage { get; internal set; }
+        public string AcceptMessage { get; set; }
 
         [BsonElement("rejectMessage")]
-        public string RejectMessage { get; internal set; }
+        public string RejectMessage { get; set; }
 
         [BsonElement("registrationReminder")]
-        public bool? RegistrationReminder { get; internal set; }
+        public bool? RegistrationReminder { get; set; }
+
+        [BsonElement("pickupscheduleReminder")]
+        public bool? PickupScheduleReminder { get; set; }
     }
 }
