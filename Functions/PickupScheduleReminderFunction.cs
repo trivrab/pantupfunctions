@@ -31,7 +31,7 @@ namespace Functions
             var DBSTR = EnvironmentHelper.GetEnvironmentVariable("DATABASE");
             var AZUREENDPOINT = EnvironmentHelper.GetEnvironmentVariable("AzureKeyVaultEndpoint");
             var MIKEY = EnvironmentHelper.GetEnvironmentVariable("AzureMIKey");
-            var TEMPLATEID = EnvironmentHelper.GetEnvironmentVariable("TemplateId");
+            var TEMPLATEID = EnvironmentHelper.GetEnvironmentVariable("TemplateIdPickupSchedule");
             var FROMEMAIL = EnvironmentHelper.GetEnvironmentVariable("FromEmail");
             var FROMNAME = EnvironmentHelper.GetEnvironmentVariable("FromName");
             var REPORTTOEMAIL = EnvironmentHelper.GetEnvironmentVariable("ReportToEmail");
