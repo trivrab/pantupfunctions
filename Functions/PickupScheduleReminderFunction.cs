@@ -13,10 +13,10 @@ using Pantupfunctions.Helpers;
 
 namespace Functions
 {
-    public class RegisterReminderFunction
+    public class PickupScheduleReminderFunction
     {
-        [FunctionName("RegisterReminderFunction")]
-        public void Run([TimerTrigger("%RegisterReminderCron%"
+        [FunctionName("PickupScheduleReminderFunction")]
+        public void Run([TimerTrigger("%PickupScheduleReminderCron%"
 #if DEBUG
             , RunOnStartup=true
 #endif
@@ -31,7 +31,7 @@ namespace Functions
             var DBSTR = EnvironmentHelper.GetEnvironmentVariable("DATABASE");
             var AZUREENDPOINT = EnvironmentHelper.GetEnvironmentVariable("AzureKeyVaultEndpoint");
             var MIKEY = EnvironmentHelper.GetEnvironmentVariable("AzureMIKey");
-            var TEMPLATEID = EnvironmentHelper.GetEnvironmentVariable("TemplateIdRegister");
+            var TEMPLATEID = EnvironmentHelper.GetEnvironmentVariable("TemplateIdPickupSchedule");
             var FROMEMAIL = EnvironmentHelper.GetEnvironmentVariable("FromEmail");
             var FROMNAME = EnvironmentHelper.GetEnvironmentVariable("FromName");
             var REPORTTOEMAIL = EnvironmentHelper.GetEnvironmentVariable("ReportToEmail");
@@ -49,18 +49,20 @@ namespace Functions
             /** Get all associations **/
             List<Association> assocs = new List<Association>();
             var collection = db.GetCollection<Association>("associations");
-            assocs = collection.Find(x => x.RegistrationReminder.HasValue && x.RegistrationReminder.Value).ToList();
+            assocs = collection.Find(x => x.PickupScheduleReminder.HasValue && x.PickupScheduleReminder.Value).ToList();
 
             /** For each association, if registrations, send mail **/
             List<string> sends = new List<string>();
+            var collectionpickup = db.GetCollection<PickupScheduleItem>("pickupschedules");
+
             foreach (var assoc in assocs)
             {
                 try
                 {
-                    List<Registration> regs = db.GetCollection<Registration>("registrations").Find(x => x.AssociationLink == assoc.Link && x.State == 0
-                        && assoc.RegistrationReminder.GetValueOrDefault(false)).ToList();
+                    var nextpickup = collectionpickup.Find(x => x.AssociationLink.ToUpper() == assoc.Link.ToUpper()
+                        && x.PickupDate >= DateTime.Now.AddDays(7)).Any();
 
-                    if (regs == null || regs.Count == 0)
+                    if (nextpickup)
                     {
                         continue;
                     }
@@ -68,17 +70,17 @@ namespace Functions
                     var from = new EmailAddress(FROMEMAIL, FROMNAME);
                     var to = new EmailAddress(assoc.ResponsibleEmail, assoc.ResponsibleName);
                     SendGridMessage msg = MailHelper.CreateSingleTemplateEmail(from, to, TEMPLATEID,
-                        new Dictionary<string, object> { { "x", regs.Count }, { "assoc", assoc.Name } });
+                        new Dictionary<string, object> { { "assoc", assoc.Name } });
                     var resp = client.SendEmailAsync(msg).Result;
                     var cnt = resp.IsSuccessStatusCode;
 
-                    sends.Add($"<li>{assoc.Name} : {regs.Count} </li>");
+                    sends.Add($"<li>{assoc.Name}</li>");
 
-                    log.LogInformation($"Sent registerreminder mail to: {assoc.ResponsibleEmail}");
+                    log.LogInformation($"Sent pickupschedule mail to: {assoc.ResponsibleEmail}");
                 }
                 catch (Exception)
                 {
-                    log.LogInformation($"Fail to send registerreminder mail to: {assoc.ResponsibleEmail}");
+                    log.LogInformation($"Fail to send pickupschedule mail to: {assoc.ResponsibleEmail}");
                 }
             }
 
@@ -86,14 +88,14 @@ namespace Functions
             try
             {
                 SendGridMessage msg = MailHelper.CreateSingleEmail(new EmailAddress(FROMEMAIL), new EmailAddress(REPORTTOEMAIL),
-                    $"Registreringspåminnelse - Rapport ({ENVIRONMENT})", "", $"<p>Skickat till: </p><ul>{string.Join("", sends)}</ul>");
+                    $"Uppdatera upphämtningsschema påminnelse - Rapport ({ENVIRONMENT})", "", $"<p>Skickat till: </p><ul>{string.Join("", sends)}</ul>");
                 var resp = client.SendEmailAsync(msg).Result;
-                log.LogInformation($"Sent registerreminder report mail to: andre@viebke87.se");
+                log.LogInformation($"Sent pickupschedule report mail to: andre@viebke87.se");
 
             }
             catch (Exception ex)
             {
-                log.LogInformation($"Failed to send registerreminder report mail");
+                log.LogInformation($"Failed to send pickupschedule report mail");
             }
 
             log.LogInformation($"Trigger ended at {DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}");
